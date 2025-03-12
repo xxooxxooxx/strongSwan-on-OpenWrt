@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
-PKG_VERSION:=5.9.10
-PKG_RELEASE:=5
+PKG_VERSION:=5.9.14
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.strongswan.org/ https://download2.strongswan.org/
-PKG_HASH:=3b72789e243c9fa6f0a01ccaf4f83766eba96a5e5b1e071d36e997572cf34654
+PKG_HASH:=728027ddda4cb34c67c4cec97d3ddb8c274edfbabdaeecf7e74693b54fc33678
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_MAINTAINER:=Philip Prindeville <philipp@redfish-solutions.com>, Noel Kuntze <noel.kuntze@thermi.consulting>
 PKG_CPE_ID:=cpe:/a:strongswan:strongswan
@@ -42,6 +42,7 @@ PKG_MOD_AVAILABLE:= \
 	dnskey \
 	drbg \
 	duplicheck \
+	eap-dynamic \
 	eap-identity \
 	eap-md5 \
 	eap-mschapv2 \
@@ -185,6 +186,7 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-dnskey \
 	+strongswan-mod-drbg \
 	+strongswan-mod-duplicheck \
+	+strongswan-mod-eap-dynamic \
 	+strongswan-mod-eap-identity \
 	+strongswan-mod-eap-md5 \
 	+strongswan-mod-eap-mschapv2 \
@@ -325,7 +327,7 @@ endef
 define Package/strongswan-isakmp/description
 $(call Package/strongswan/description/Default)
  This meta-package contains only dependencies to establish  ISAKMP /
- IKE PSK connections, dropping other capabilities in favor of small size 
+ IKE PSK connections, dropping other capabilities in favor of small size
  Can fit most routers even with 4Mb flash (after removing IPv6 support).
 endef
 
@@ -585,6 +587,8 @@ define Package/strongswan-swanctl/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/swanctl $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/swanctl.init $(1)/etc/init.d/swanctl
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/ipsec.config $(1)/etc/config/ipsec
 endef
 
 define Package/strongswan-gencerts/install
@@ -684,6 +688,7 @@ $(eval $(call BuildPlugin,dhcp,DHCP based attribute provider,))
 $(eval $(call BuildPlugin,dnskey,DNS RR key decoding,))
 $(eval $(call BuildPlugin,drbg,Deterministic random bit generator,,))
 $(eval $(call BuildPlugin,duplicheck,advanced duplicate checking,))
+$(eval $(call BuildPlugin,eap-dynamic,EAP dynamic selector,))
 $(eval $(call BuildPlugin,eap-identity,EAP identity helper,))
 $(eval $(call BuildPlugin,eap-md5,EAP MD5 (CHAP) EAP auth,))
 $(eval $(call BuildPlugin,eap-mschapv2,EAP MS-CHAPv2 EAP auth,+strongswan-mod-md4 +strongswan-mod-des))
