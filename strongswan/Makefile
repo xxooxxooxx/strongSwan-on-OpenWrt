@@ -20,7 +20,6 @@ PKG_CPE_ID:=cpe:/a:strongswan:strongswan
 
 PKG_MOD_AVAILABLE:= \
 	addrblock \
-	bypass-lan \
 	aes \
 	af-alg \
 	agent \
