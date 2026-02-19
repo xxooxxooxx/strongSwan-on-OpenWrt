@@ -40,7 +40,7 @@ jobs:
           cd strongswan
           # 比如：把所有的 "old_text" 替换为 "new_text"
           # sed -i 's/old_text/new_text/g' Makefile
-          sed -i '/addrblock \\/a \	bypass-lan \\' Makefile
+          sed -i '/addrblock \\/a \  bypass-lan \\' Makefile
           cd ..
 
           # 6. 检查是否有变动
