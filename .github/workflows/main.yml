@@ -1,0 +1,63 @@
+name: Auto Sync and Modify Strongswan
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天凌晨 (UTC) 自动巡检
+  workflow_dispatch:      # 允许手动随时触发
+
+jobs:
+  update-package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予 Action 推送代码的权限
+
+    steps:
+      - name: Checkout My Repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Upstream Strongswan
+        run: |
+          # 1. 极速克隆上游仓库结构
+          git clone --filter=blob:none --no-checkout https://github.com/openwrt/packages
+          cd packages
+          # 2. 锁定目录并下载
+          git sparse-checkout set net/strongswan
+          git checkout master
+          cd ..
+
+      - name: Check for Changes and Apply Modification
+        id: check_sync
+        run: |
+          # 3. 准备存放目录
+          mkdir -p strongswan
+          
+          # 4. 同步文件（仅复制内容，不带上游的 .git）
+          cp -r packages/net/strongswan/* ./strongswan/
+          rm -rf packages
+          
+          # 5. 执行你的 Makefile 修改逻辑 (示例：修改版本号或编译选项)
+          # 请根据实际需求修改这里的 sed 指令
+          cd strongswan
+          # 比如：把所有的 "old_text" 替换为 "new_text"
+          # sed -i 's/old_text/new_text/g' Makefile
+          sed -i '/addrblock \\/a \	bypass-lan \\' Makefile
+          cd ..
+
+          # 6. 检查是否有变动
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add strongswan/
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "上游无变化，且本地修改已存在。"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "检测到变化，准备推送更新。"
+          fi
+
+      - name: Commit and Push
+        if: steps.check_sync.outputs.changed == 'true'
+        run: |
+          git commit -m "Auto-update: Sync strongswan from openwrt/packages and apply mods"
+          git push
