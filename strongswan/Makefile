@@ -20,7 +20,7 @@ PKG_CPE_ID:=cpe:/a:strongswan:strongswan
 
 PKG_MOD_AVAILABLE:= \
 	addrblock \
-	bypass-lan \
+  bypass-lan \
 	aes \
 	af-alg \
 	agent \
@@ -161,7 +161,7 @@ $(call Package/strongswan/Default)
 	+strongswan-charon-cmd \
 	+strongswan-ipsec \
 	+strongswan-mod-addrblock \
-	+strongswan-mod-bypass-lan \
+  bypass-lan \
 	+strongswan-mod-aes \
 	+strongswan-mod-af-alg \
 	+strongswan-mod-agent \
@@ -653,7 +653,6 @@ $(eval $(call BuildPackage,strongswan-swanctl))
 $(eval $(call BuildPackage,strongswan-gencerts))
 $(eval $(call BuildPackage,strongswan-libtls))
 $(eval $(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))
-$(eval $(call BuildPlugin,bypass-lan,Automatically installs and updates bypass policies for locally attached subnets,))
 $(eval $(call BuildPlugin,aes,AES crypto,))
 $(eval $(call BuildPlugin,af-alg,AF_ALG crypto interface to Linux Crypto API,+kmod-crypto-user))
 $(eval $(call BuildPlugin,agent,SSH agent signing,))
