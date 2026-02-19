@@ -40,7 +40,9 @@ jobs:
           cd strongswan
           # 比如：把所有的 "old_text" 替换为 "new_text"
           # sed -i 's/old_text/new_text/g' Makefile
-          sed -i '/addrblock \\/a \  bypass-lan \\' Makefile
+          sed -i '/^[[:space:]]*addrblock \\$/a \\t\bypass-lan \\' Makefile
+          sed -i '/^[[:space:]]+strongswan-mod-addrblock \\$/a \\t\+strongswan-mod-bypass-lan \\' Makefile
+          sed -i '/\$(eval \$(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))/a \$(eval $(call BuildPlugin,bypass-lan,LAN bypass support,))' Makefile
           cd ..
 
           # 6. 检查是否有变动
