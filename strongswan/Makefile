@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
 PKG_VERSION:=6.0.6
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.strongswan.org/ https://download2.strongswan.org/
@@ -27,7 +27,7 @@ PKG_MOD_AVAILABLE:= \
 	attr \
 	attr-sql \
 	blowfish \
-	ccm \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),ccm,) \
 	chapoly \
 	cmac \
 	constraints \
@@ -44,7 +44,7 @@ PKG_MOD_AVAILABLE:= \
 	eap-dynamic \
 	eap-identity \
 	eap-md5 \
-	eap-mschapv2 \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),eap-mschapv2,) \
 	eap-radius \
 	eap-tls \
 	farp \
@@ -63,7 +63,7 @@ PKG_MOD_AVAILABLE:= \
 	led \
 	load-tester \
 	lookip \
-	md4 \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),md4,) \
 	md5 \
 	mgf1 \
 	mysql \
@@ -104,7 +104,8 @@ PKG_MOD_AVAILABLE:= \
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_STRONGSWAN_ROUTING_TABLE \
 	CONFIG_STRONGSWAN_ROUTING_TABLE_PRIO \
-	$(patsubst %,CONFIG_PACKAGE_strongswan-mod-%,$(PKG_MOD_AVAILABLE)) \
+	CONFIG_STRONGSWAN_INCLUDE_INSECURE \
+	$(patsubst %,CONFIG_PACKAGE_strongswan-mod-%,$(PKG_MOD_AVAILABLE))
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -131,7 +132,7 @@ define Package/strongswan
 $(call Package/strongswan/Default)
   MENU:=1
   DEPENDS:= +libpthread +ip \
-	+kmod-crypto-aead \
+	+STRONGSWAN_INCLUDE_INSECURE:kmod-crypto-aead \
 	+kmod-crypto-authenc \
 	+kmod-crypto-cbc \
 	+kmod-lib-zlib-inflate \
@@ -168,7 +169,7 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-attr \
 	+strongswan-mod-attr-sql \
 	+strongswan-mod-blowfish \
-	+strongswan-mod-ccm \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-ccm \
 	+strongswan-mod-chapoly \
 	+strongswan-mod-cmac \
 	+strongswan-mod-constraints \
@@ -185,7 +186,7 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-eap-dynamic \
 	+strongswan-mod-eap-identity \
 	+strongswan-mod-eap-md5 \
-	+strongswan-mod-eap-mschapv2 \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-eap-mschapv2 \
 	+strongswan-mod-eap-radius \
 	+strongswan-mod-eap-tls \
 	+strongswan-mod-farp \
@@ -202,7 +203,7 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-led \
 	+strongswan-mod-load-tester \
 	+strongswan-mod-lookip \
-	+strongswan-mod-md4 \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-md4 \
 	+strongswan-mod-md5 \
 	+strongswan-mod-mgf1 \
 	+strongswan-mod-mysql \
@@ -469,7 +470,7 @@ CONFIGURE_ARGS+= \
 	--with-urandom-device=/dev/urandom \
 	--with-routing-table="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE))" \
 	--with-routing-table-prio="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE_PRIO))" \
-	$(foreach m,$(PKG_MOD_AVAILABLE), \
+	$(foreach m,$(PKG_MOD_AVAILABLE) ccm eap-mschapv2 md4, \
 	  $(if $(CONFIG_PACKAGE_strongswan-mod-$(m)),--enable-$(m),--disable-$(m)) \
 	) \
 	ac_cv_search___atomic_load=no
